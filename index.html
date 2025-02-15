@@ -25,7 +25,6 @@
     </div>
 
     <button onclick="submitGame()">交卷</button>
-
     <div id="result"></div>
 
     <script>
@@ -48,6 +47,7 @@
         function generateQuestions() {
             let table = document.getElementById("questions");
             table.innerHTML = "";
+            questions = [];
 
             for (let i = 0; i < 10; i++) {
                 let num1 = Math.floor(Math.random() * 11);
@@ -81,7 +81,19 @@
                 document.getElementById(`correct${i}`).style.display = "inline"; // 顯示正確答案
             }
 
-            document.getElementById("result").innerHTML = `<p>您的最終得分：${score} 分</p>`;
+            document.getElementById("result").innerHTML = `
+                <p>您的最終得分：${score} 分</p>
+                <button onclick="restartGame()">重新開始</button>
+            `;
+        }
+
+        function restartGame() {
+            clearInterval(timer);
+            timeLeft = 600; // 重設計時
+            document.getElementById("timer").textContent = `剩餘時間：600 秒`;
+            document.getElementById("result").innerHTML = ""; // 清空結果
+            generateQuestions(); // 重新產生題目
+            startTimer(); // 重新啟動計時
         }
 
         // 初始化遊戲
