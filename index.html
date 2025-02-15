@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>數字計算遊戲</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .game-container { font-size: 24px; margin-bottom: 20px; }
-        input { font-size: 20px; width: 80px; text-align: center; }
-        button { font-size: 20px; padding: 10px; margin: 10px; }
-        #result { font-size: 24px; margin-top: 20px; font-weight: bold; }
-        #timer { font-size: 20px; color: red; }
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; font-size: 48px; }
+        .game-container { font-size: 48px; margin-bottom: 20px; }
+        table { margin: 0 auto; border-collapse: collapse; }
+        td { padding: 20px; font-size: 40px; border-bottom: 2px solid #ccc; }
+        input { font-size: 40px; width: 120px; text-align: center; padding: 10px; }
+        button { font-size: 40px; padding: 20px; margin-top: 20px; cursor: pointer; }
+        #result { font-size: 48px; margin-top: 40px; font-weight: bold; }
+        #timer { font-size: 40px; color: red; }
     </style>
 </head>
 <body>
@@ -19,21 +21,15 @@
     <div id="timer">剩餘時間：600 秒</div>
 
     <div class="game-container">
-        <span id="num1">?</span>
-        <span id="operator">?</span>
-        <span id="num2">?</span>
-        =
-        <input type="number" id="answer" min="0">
+        <table id="questions"></table>
     </div>
 
-    <button onclick="checkAnswer()">提交答案</button>
     <button onclick="submitGame()">交卷</button>
 
     <div id="result"></div>
 
     <script>
-        let num1, num2, operator, correctAnswer;
-        let currentQuestion = 0;
+        let questions = [];
         let score = 0;
         let timeLeft = 600; // 10 分鐘倒數計時
         let timer;
@@ -44,68 +40,53 @@
                 document.getElementById("timer").textContent = `剩餘時間：${timeLeft} 秒`;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    endGame();
+                    submitGame();
                 }
             }, 1000);
         }
 
-        function generateQuestion() {
-            if (currentQuestion >= 10) {
-                endGame();
-                return;
-            }
+        function generateQuestions() {
+            let table = document.getElementById("questions");
+            table.innerHTML = "";
 
-            num1 = Math.floor(Math.random() * 11);
-            operator = Math.random() < 0.5 ? '+' : '-';
+            for (let i = 0; i < 10; i++) {
+                let num1 = Math.floor(Math.random() * 11);
+                let operator = Math.random() < 0.5 ? '+' : '-';
+                let num2 = operator === '-' ? Math.floor(Math.random() * (num1 + 1)) : Math.floor(Math.random() * 11);
+                let correctAnswer = operator === '+' ? num1 + num2 : num1 - num2;
 
-            if (operator === '-') {
-                num2 = Math.floor(Math.random() * (num1 + 1)); // 確保 num1 >= num2
-            } else {
-                num2 = Math.floor(Math.random() * 11);
-            }
+                questions.push({ num1, operator, num2, correctAnswer });
 
-            correctAnswer = operator === '+' ? num1 + num2 : num1 - num2;
-
-            document.getElementById("num1").textContent = num1;
-            document.getElementById("operator").textContent = operator;
-            document.getElementById("num2").textContent = num2;
-            document.getElementById("result").textContent = "";
-            document.getElementById("answer").value = "";
-            document.getElementById("answer").focus();
-        }
-
-        function checkAnswer() {
-            let userAnswer = parseInt(document.getElementById("answer").value, 10);
-
-            if (userAnswer === correctAnswer) {
-                score += 10;
-            }
-
-            currentQuestion++;
-            if (currentQuestion < 10) {
-                generateQuestion();
-            } else {
-                endGame();
+                let row = table.insertRow();
+                row.innerHTML = `
+                    <td>${num1}</td>
+                    <td>${operator}</td>
+                    <td>${num2}</td>
+                    <td>=</td>
+                    <td><input type="number" id="answer${i}" min="0"></td>
+                    <td id="correct${i}" style="color: green; font-weight: bold; display: none;">正確答案: ${correctAnswer}</td>
+                `;
             }
         }
 
         function submitGame() {
             clearInterval(timer); // 停止計時
-            endGame();
-        }
+            score = 0;
 
-        function endGame() {
-            clearInterval(timer);
-            document.body.innerHTML = `
-                <h1>遊戲結束！</h1>
-                <p>您的最終得分：${score} 分</p>
-                <button onclick="location.reload()">重新開始</button>
-            `;
+            for (let i = 0; i < 10; i++) {
+                let userAnswer = parseInt(document.getElementById(`answer${i}`).value, 10);
+                if (userAnswer === questions[i].correctAnswer) {
+                    score += 10;
+                }
+                document.getElementById(`correct${i}`).style.display = "inline"; // 顯示正確答案
+            }
+
+            document.getElementById("result").innerHTML = `<p>您的最終得分：${score} 分</p>`;
         }
 
         // 初始化遊戲
         startTimer();
-        generateQuestion();
+        generateQuestions();
     </script>
 
 </body>
