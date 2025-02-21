@@ -13,6 +13,8 @@
         button { font-size: 20px; padding: 10px; margin-top: 20px; cursor: pointer; }
         #result { font-size: 24px; margin-top: 20px; font-weight: bold; }
         #timer { font-size: 20px; color: red; }
+        .correct { color: green; font-weight: bold; }
+        .incorrect { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -64,7 +66,7 @@
                     <td>${num2}</td>
                     <td>=</td>
                     <td><input type="number" id="answer${i}" min="0"></td>
-                    <td id="correct${i}" style="color: green; font-weight: bold; display: none;">正確答案: ${correctAnswer}</td>
+                    <td id="correct${i}" style="display: none;"></td>
                 `;
             }
         }
@@ -75,10 +77,19 @@
 
             for (let i = 0; i < 10; i++) {
                 let userAnswer = parseInt(document.getElementById(`answer${i}`).value, 10);
-                if (userAnswer === questions[i].correctAnswer) {
+                let correctAnswer = questions[i].correctAnswer;
+                let resultCell = document.getElementById(`correct${i}`);
+
+                if (userAnswer === correctAnswer) {
                     score += 10;
+                    resultCell.innerHTML = `✔ ${correctAnswer}`;
+                    resultCell.className = "correct";
+                } else {
+                    resultCell.innerHTML = `✘ ${correctAnswer}`;
+                    resultCell.className = "incorrect";
                 }
-                document.getElementById(`correct${i}`).style.display = "inline"; // 顯示正確答案
+
+                resultCell.style.display = "inline"; // 顯示正確答案
             }
 
             document.getElementById("result").innerHTML = `
